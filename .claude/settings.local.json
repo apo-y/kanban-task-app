@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(cat next.config.ts)",
+      "Bash(cat next.config.js)",
+      "Bash(find /c/Users/kkyoshi/project/看板ボード風タスク管理アプリケーション -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -path \"*/node_modules\" -prune -o -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -exec grep -l \"signUp\\\\|signIn\\\\|signOut\\\\|resetPassword\\\\|updateUser\\\\|getUser\\\\|getSession\" {} \\\\;)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}
