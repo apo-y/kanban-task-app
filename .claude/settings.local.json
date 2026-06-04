@@ -7,5 +7,32 @@
       "Bash(find /c/Users/kkyoshi/project/看板ボード風タスク管理アプリケーション -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -path \"*/node_modules\" -prune -o -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -exec grep -l \"signUp\\\\|signIn\\\\|signOut\\\\|resetPassword\\\\|updateUser\\\\|getUser\\\\|getSession\" {} \\\\;)",
       "mcp__Claude_Preview__preview_start"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "git add -A; msg=\"auto $(date +%Y-%m-%dT%H:%M)\"; git diff --cached --quiet || git commit -q -m \"$msg\"",
+            "statusMessage": "Git自動コミット中..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "git rev-list origin/main..HEAD 2>/dev/null | grep -q . && git push -q origin HEAD:main 2>/dev/null && echo '{\"systemMessage\":\"✅ GitHubへ自動pushしました\"}'",
+            "statusMessage": "GitHubへpush中..."
+          }
+        ]
+      }
+    ]
   }
 }
