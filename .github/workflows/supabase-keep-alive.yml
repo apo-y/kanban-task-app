@@ -1,0 +1,39 @@
+# Supabase 無料プランの自動一時停止（7日間アクセスなし）を防ぐため、
+# 3日ごとに tasks テーブルへ軽い読み取りリクエストを送る。
+#
+# 必要な Secrets（GitHub リポジトリの Settings → Secrets and variables → Actions）:
+#   SUPABASE_URL       … .env.local の NEXT_PUBLIC_SUPABASE_URL の値
+#   SUPABASE_ANON_KEY  … .env.local の NEXT_PUBLIC_SUPABASE_ANON_KEY の値
+
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: "0 0 */3 * *" # 3日ごと UTC 0:00（日本時間 9:00）
+  workflow_dispatch: # Actions タブから手動実行も可能
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::Secrets SUPABASE_URL / SUPABASE_ANON_KEY が設定されていません"
+            exit 1
+          fi
+          status=$(curl -sS -o response.json -w "%{http_code}" \
+            "${SUPABASE_URL%/}/rest/v1/tasks?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "HTTP status: $status"
+          if [ "$status" -ne 200 ]; then
+            echo "::error::Supabase への接続に失敗しました"
+            cat response.json
+            exit 1
+          fi
+          echo "Supabase keep-alive OK"
